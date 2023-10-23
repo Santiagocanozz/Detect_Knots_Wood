@@ -4,5 +4,5 @@ This is a project carried out for the detection of defects in wood, in this case
 
 Inference with: 
 
--Darknet 
+- Darknet 
 - OpenCV DNN
