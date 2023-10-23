@@ -6,3 +6,6 @@ Inference with:
 
 - Darknet 
 - OpenCV DNN
+
+Results: 
+![resultInference](https://github.com/Santiagocanozz/Detect_Knots_Wood/assets/32996183/fba5de07-795a-470a-9e09-80f083c6da36)
