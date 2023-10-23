@@ -70,5 +70,6 @@ for i in indices:
 
 # Mostramos la imagen con las detecciones
 cv2.imshow('YOLO Object Detection', image)
+cv2.imwrite('C:/Users/Usuario/Documents/Proyectos/Detect_Knots_Wood/Detect_Knots_Wood/examples_images/resultInference.jpg',image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
