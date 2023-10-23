@@ -1,75 +1,85 @@
 import cv2
 import json
 import numpy as np
+import os
 
-JSON_config = open('propertiesYOLO.json')
-dataLoad = json.load(JSON_config)
 
-weights = dataLoad['data']['weights']
-cfg = dataLoad['data']['cfg']
-names = dataLoad['data']['obj_names']
-# Cargamos el modelo YOLO pre-entrenado y sus pesos
-net = cv2.dnn.readNet(weights, cfg)
+def process_image(file):
+    pathFile = "C:/Users/Usuario/Documents/Proyectos/Detect_Knots_Wood/Detect_Knots_Wood/examples_images/imagesOriginal"
+    JSON_config = open('propertiesYOLO.json')
+    dataLoad = json.load(JSON_config)
 
-# Cargamos las clases a las que YOLO puede detectar
-classes = []
-with open(names, 'r') as f:
-    classes = f.read().strip().split('\n')
+    weights = dataLoad['data']['weights']
+    cfg = dataLoad['data']['cfg']
+    names = dataLoad['data']['obj_names']
+    # Cargamos el modelo YOLO pre-entrenado y sus pesos
+    net = cv2.dnn.readNet(weights, cfg)
 
-# Cargamos la imagen que deseas analizar
-image = cv2.imread('C:/Users/Usuario/Documents/Proyectos/Detect_Knots_Wood/Detect_Knots_Wood/examples_images/FLIR1059.jpg')
+    # Cargamos las clases a las que YOLO puede detectar
+    classes = []
+    with open(names, 'r') as f:
+        classes = f.read().strip().split('\n')
 
-# Escalamos y preprocesamos la imagen
-blob = cv2.dnn.blobFromImage(image, 1/255, (832, 832), swapRB=True, crop=False)
+    # Cargamos la imagen que deseas analizar
+    image = cv2.imread(pathFile+ "/" +file)
 
-# Definimos las capas de salida
-layer_names = net.getUnconnectedOutLayersNames()
+    # Escalamos y preprocesamos la imagen
+    blob = cv2.dnn.blobFromImage(image, 1/255, (832, 832), swapRB=True, crop=False)
 
-# Realizamos la inferencia
-net.setInput(blob)
-outs = net.forward(layer_names)
+    # Definimos las capas de salida
+    layer_names = net.getUnconnectedOutLayersNames()
 
-# Lista para almacenar información de detección
-class_ids = []
-confidences = []
-boxes = []
+    # Realizamos la inferencia
+    net.setInput(blob)
+    outs = net.forward(layer_names)
 
-# Procesamos las detecciones
-for out in outs:
-    for detection in out:
-        scores = detection[5:]
-        class_id = np.argmax(scores)
-        confidence = scores[class_id]
-        if confidence > 0.5:  # Umbral de confianza
-            # Coordenadas del cuadro delimitador
-            center_x = int(detection[0] * image.shape[1])
-            center_y = int(detection[1] * image.shape[0])
-            w = int(detection[2] * image.shape[1])
-            h = int(detection[3] * image.shape[0])
+    # Lista para almacenar información de detección
+    class_ids = []
+    confidences = []
+    boxes = []
 
-            # Puntos de referencia del cuadro delimitador
-            x = int(center_x - w / 2)
-            y = int(center_y - h / 2)
+    # Procesamos las detecciones
+    for out in outs:
+        for detection in out:
+            scores = detection[5:]
+            class_id = np.argmax(scores)
+            confidence = scores[class_id]
+            if confidence > 0.5:  # Umbral de confianza
+                # Coordenadas del cuadro delimitador
+                center_x = int(detection[0] * image.shape[1])
+                center_y = int(detection[1] * image.shape[0])
+                w = int(detection[2] * image.shape[1])
+                h = int(detection[3] * image.shape[0])
 
-            class_ids.append(class_id)
-            confidences.append(float(confidence))
-            boxes.append([x, y, w, h])
+                # Puntos de referencia del cuadro delimitador
+                x = int(center_x - w / 2)
+                y = int(center_y - h / 2)
 
-# Aplicamos la supresión de no máximos para eliminar detecciones superpuestas
-indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.5)
+                class_ids.append(class_id)
+                confidences.append(float(confidence))
+                boxes.append([x, y, w, h])
 
-# Dibujamos los cuadros delimitadores en la imagen
-for i in indices:
-    i = i[0]
-    label = str(classes[class_ids[i]])
-    confidence = confidences[i]
-    box = boxes[i]
-    color = (0, 255, 0)  # Color del cuadro delimitador en formato BGR
-    cv2.rectangle(image, (box[0], box[1]), (box[0] + box[2], box[1] + box[3]), color, 2)
-    cv2.putText(image, f'{label} {confidence:.2f}', (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+    # Aplicamos la supresión de no máximos para eliminar detecciones superpuestas
+    indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.5)
 
-# Mostramos la imagen con las detecciones
-cv2.imshow('YOLO Object Detection', image)
-cv2.imwrite('C:/Users/Usuario/Documents/Proyectos/Detect_Knots_Wood/Detect_Knots_Wood/examples_images/resultInference.jpg',image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    # Dibujamos los cuadros delimitadores en la imagen
+    for i in indices:
+        i = i[0]
+        label = str(classes[class_ids[i]])
+        confidence = confidences[i]
+        box = boxes[i]
+        color = (0, 255, 0)  # Color del cuadro delimitador en formato BGR
+        cv2.rectangle(image, (box[0], box[1]), (box[0] + box[2], box[1] + box[3]), color, 2)
+        cv2.putText(image, f'{label} {confidence:.2f}', (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+    # Mostramos la imagen con las detecciones
+    cv2.imshow('YOLO Object Detection', image)
+    pathFile = file.split("/")
+    pathFile = pathFile[-1]
+    cv2.imwrite("C:/Users/Usuario/Documents/Proyectos/Detect_Knots_Wood/Detect_Knots_Wood/examples_images"+"/" +pathFile + "Inference.jpg",image)
+
+pathImages = "C:/Users/Usuario/Documents/Proyectos/Detect_Knots_Wood/Detect_Knots_Wood/examples_images/imagesOriginal"
+ListImages = os.listdir(pathImages)
+
+for image in ListImages:
+    process_image(image)
