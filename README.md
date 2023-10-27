@@ -8,4 +8,5 @@ Inference with:
 - OpenCV DNN
 
 Results: 
-![resultInference](https://github.com/Santiagocanozz/Detect_Knots_Wood/assets/32996183/fba5de07-795a-470a-9e09-80f083c6da36)
+
+![Captura](https://github.com/Santiagocanozz/Detect_Knots_Wood/assets/32996183/9e8ad93a-8eea-44f6-a010-a604d8c77605)
